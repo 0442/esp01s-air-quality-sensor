@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+</head>
+
+<body style="background-color: antiquewhite;margin:0;padding: 40px">
+    <div id="page"
+        style="margin:auto;margin-top:0;padding:0; max-width: fit-content; min-width: fit-content; width:auto;background-color: white;">
+
+        <div
+            style="padding:40px;display:flex; flex-direction:row; flex-wrap:wrap;overflow: visible;overflow-wrap: normal; justify-self: center;justify-content:space-around;">
+            <div id="left" style="margin: 20px">
+                <h1 style="font-family: sans-serif; font-size:30px; color: rgba(70,70,70,1)">IKEA VINDRIKTNING PM 2.5
+                    sensor readings</h1>
+
+                <p class="s-text">Variation trend of airborne PM 2.5 particle consentration</p>
+                <br>
+                <br>
+                <div id="time-cont"
+                    style="display: flex; flex-direction:column;justify-content:space-evenly; background-color:rgba(0, 0, 0,0); width: fit-content;">
+                    <p class="ss-text">Show measurements within the last</p>
+
+                    <div style="display:flex; flex-direction:row;justify-content: flex-start;">
+                        <button id="minute-button" onclick="timeButtonClick('minute')"
+                            class="time-button time-button-selected">
+                            Minute
+                        </button>
+                        <button id="hour-button" onclick="timeButtonClick('hour')" class="time-button">
+                            Hour
+                        </button>
+                        <button id="day-button" onclick="timeButtonClick('day')" class="time-button">
+                            Day
+                        </button>
+                        <button id="week-button" onclick="timeButtonClick('week')" class="time-button">
+                            Week
+                        </button>
+                        <button id="month-button" onclick="timeButtonClick('month')" class="time-button">
+                            Month
+                        </button>
+                    </div>
+                </div>
+
+
+                <div id="canvas-cont" style="width: 600px;height:450px">
+                </div>
+
+
+                <p class="s-text" style="font-size: small"> Sensor (PM1006) specifications: </p>
+                <li class="s-text" style="font-size: small"> Measured particle size: 0.3μm – 10μm</li>
+                <li class="s-text" style="font-size: small"> Accuracy: ±20μg/m³ or ±20%</li>
+
+                <div class="img-cont">
+                    <img src="/pm1006.png">
+                    <p class="img-text">PM1006.
+                        <a
+                            href="https://en.gassensor.com.cn/ParticulateMatterSensor/info_itemid_105.html">en.gassensor.com</a>
+                    </p>
+                </div>
+
+
+            </div>
+
+            <div id="right" style="margin: 20px; width:min-content">
+                <div class="img-cont">
+                    <img src="/who-aqg.jpg" , style="width:600px; height:auto; padding:0;margin:0"></img>
+                    <p class="img-text">
+                        WHO air quality recommendations.
+                        <a
+                            href="https://www.who.int/news-room/feature-stories/detail/what-are-the-who-air-quality-guidelines">www.who.int</a>
+                    </p>
+                </div>
+
+                <br>
+
+                <div class="img-cont">
+                    <img src="/particle-examples.svg" , style="width:600px; height:auto; padding:0;margin:0"></img>
+                    <p class="img-text">
+                        Airborne particles are commonly either biological contaminants, particulate contaminants,
+                        gaseous contaminants, or dust.
+                        This diagram shows the size distribution in micrometres (µm) of various types of airborne
+                        particles.
+                        <a
+                            href="https://en.wikipedia.org/wiki/Particulates#/media/File:Airborne-particulate-size-chart.svg">www.wikipedia.org</a>
+                    </p>
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <footer style="height:400px; width: 100%; background-color:slategrey">
+
+        </footer>
+    </div>
+
+
+</body>
+
+</html>
+
+<style>
+    #page {
+        min-width: 500px;
+        max-width: 50%;
+    }
+
+    .s-text {
+        margin: 5px;
+        font-family: sans-serif;
+        font-size: medium;
+        color: rgba(80, 80, 80)
+    }
+
+    .ss-text {
+        margin: 5px;
+        font-family: sans-serif;
+        font-size: small;
+        color: rgba(150, 150, 150)
+    }
+
+    .time-button {
+        font-family: sans-serif;
+        background-color: rgba(0, 0, 0, 0);
+        border: 1px;
+        border-radius: 5px;
+        border-color: rgba(0, 0, 0, 0);
+        color: rgba(20, 150, 190);
+        padding: 6px;
+        margin: 3px;
+        cursor: pointer;
+        height: min-content;
+    }
+
+    .time-button-selected {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .img-cont {
+        background-color: rgba(0, 0, 0, 0.025);
+        border-radius: 10px;
+        width: min-content;
+        padding: 40px;
+        margin: 0px;
+        margin-top: 20px;
+    }
+
+    .img-text {
+        font-family: sans-serif;
+        font-size: small;
+        /*font-style:italic;*/
+        margin: 0px;
+        margin-top: 10px;
+    }
+</style>
+
+
+<script src="/chart.umd.js"></script>
+
+<script>
+    const msToDateStr = (ms) => {
+        datetime = new Date()
+        datetime.setTime(ms * 1000)
+        y = datetime.getUTCFullYear()
+        m = datetime.getUTCMonth() + 1
+        d = datetime.getUTCDate()
+        h = datetime.getUTCHours()
+        min = datetime.getUTCMinutes()
+        s = datetime.getUTCSeconds()
+
+        dateStr = `${d}.${m}.${y} ${h}:${min}:${s}`
+        return dateStr
+    }
+    const changeActiveButton = (timeWindow) => {
+        const buttons = document.getElementsByClassName("time-button")
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].setAttribute("class", "time-button")
+        }
+        const selectedButton = document.getElementById(timeWindow + "-button")
+        selectedButton.setAttribute("class", "time-button time-button-selected")
+
+
+
+    }
+    const updateCanvas = () => {
+        canvas_cont = document.getElementById("canvas-cont")
+
+        var old_canvas = document.getElementById("chart-canvas")
+        if (old_canvas) {
+            canvas_cont.removeChild(old_canvas)
+        }
+        var new_canvas = document.createElement('canvas')
+        new_canvas.id = "chart-canvas"
+        new_canvas.setAttribute("width", 600)
+        new_canvas.setAttribute("height", 450)
+
+        canvas_cont.appendChild(new_canvas)
+        return new_canvas
+    }
+
+    const createChart = (pm_data) => {
+        console.log("creating chart.")
+        if (pm_data !== null) {
+            var datetimes = []
+            var values = []
+
+            for (let i = 0; i < pm_data.length; i++) {
+                const dateStr = msToDateStr(pm_data[i].timestamp)
+                values.push(pm_data[i].value)
+                datetimes.push(dateStr)
+            }
+
+            data = {
+                labels: datetimes,
+                datasets: [{
+                    label: 'PM 2.5 consentration (μg/m³)',
+                    data: values,
+                }],
+                borderWidth: 1
+            }
+        } else {
+            console.log("no data.")
+            data = {
+                labels: ['No data'],
+                datasets: [{
+                    label: 'No data',
+                    data: ['No data'],
+                }],
+                borderWidth: 1
+            }
+        }
+
+        console.log(datetimes, values)
+        new_canvas = updateCanvas()
+
+        chart = new Chart(
+            new_canvas,
+            {
+                type: 'line',
+                data: data,
+                options: { scales: { y: { beginAtZero: true } } }
+            }
+        )
+    }
+
+    const newChart = (timeWindow, chart) => {
+        fetch('/data/' + timeWindow, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then((response) => {
+            response.json().then((body) => {
+                data = body.data
+                console.log(data)
+                if (data.length > 0) {
+                    createChart(data)
+                } else {
+                    createChart(null)
+                }
+            })
+
+        })
+
+    }
+
+    const timeButtonClick = (timeWindow) => {
+        newChart(timeWindow)
+        changeActiveButton(timeWindow)
+    }
+
+    const ctx = document.getElementById('pm-chart');
+
+    var chart = null;
+
+    newChart("minute", chart)
+
+</script>
